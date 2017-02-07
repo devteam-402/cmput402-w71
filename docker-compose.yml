@@ -1,0 +1,54 @@
+nginx:
+    container_name: nginx
+    restart: always
+    build: ./nginx
+    ports:
+        - "80:80"
+    volumes:
+        - /www/static
+    volumes_from:
+        - apiserver
+    working_dir: /www/static
+    links:
+        - apiserver:apiserver
+
+apiserver:
+    container_name: apiserver
+    restart: always
+    build: ./django
+    expose:
+        - "8000"
+    links:
+        - postgres:postgres
+        - redis:redis
+    volumes:
+        - ./django:/usr/src/app
+        - ./django/static:/usr/src/app/static
+    working_dir: /usr/src/app
+    env_file: .env
+    command: ./docker-entrypoint.sh
+
+postgres:
+  container_name: postgres
+  restart: always
+  image: postgres:9.5.5-alpine
+  volumes_from:
+    - postgres_data
+  ports:
+    - "5432:5432"
+  env_file: .env
+
+redis:
+  container_name: redis
+  restart: always
+  image: redis:3.2.7-alpine
+  expose:
+    - "6379"
+
+postgres_data:
+  container_name: postgres_data
+  restart: always
+  image: alpine:3.3
+  volumes:
+    - /var/lib/postgresql
+  command: "tail -f /dev/null"
