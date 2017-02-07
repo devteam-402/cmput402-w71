@@ -25,7 +25,7 @@ apiserver:
         - ./django:/usr/src/app
         - ./django/static:/usr/src/app/static
     working_dir: /usr/src/app
-    env_file: .env
+    env_file: app.env
     command: ./docker-entrypoint.sh
 
 postgres:
@@ -36,7 +36,7 @@ postgres:
     - postgres_data
   ports:
     - "5432:5432"
-  env_file: .env
+  env_file: app.env
 
 redis:
   container_name: redis
